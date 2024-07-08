@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CDashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    canvas {
+      max-width: 800px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <div>
+    <h2>Temperature</h2>
+    <canvas id="temperatureChart"></canvas>
+    <h2>Humidity</h2>
+    <canvas id="humidityChart"></canvas>
+    <h2>Feed Level</h2>
+    <canvas id="feedLevelChart"></canvas>
+  </div>
+
+  <script>
+    // konfiguraasi firebase 
+    var firebaseConfig = {
+      apiKey: "AIzaSyBlV-HiTIzny97_uy9vhsPYJ-TLRKQ8djk",
+      authDomain: "iot24-263f5.firebaseapp.com",
+      databaseURL: "https://iot24-263f5-default-rtdb.firebaseio.com",
+      projectId: "iot24-263f5",
+      storageBucket: "iot24-263f5.appspot.com",
+      messagingSenderId: "201768049569",
+      appId: "1:201768049569:web:80fba5ef2017976bf849e0"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // konfigurasi database 
+    var database = firebase.database();
+
+    var temperatureChartCtx = document.getElementById('temperatureChart').getContext('2d');
+    var humidityChartCtx = document.getElementById('humidityChart').getContext('2d');
+    var feedLevelChartCtx = document.getElementById('feedLevelChart').getContext('2d');
+
+    // konfigurasi chart 
+    var temperatureChart = new Chart(temperatureChartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Temperature (°C)',
+          data: [],
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }]
+      }
+    });
+
+    var humidityChart = new Chart(humidityChartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Humidity (%)',
+          data: [],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      }
+    });
+
+    var feedLevelChart = new Chart(feedLevelChartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Feed Level (cm)',
+          data: [],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      }
+    });
+
+    function updateChart(chart, label, data) {
+      chart.data.labels.push(label);
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+      });
+      chart.update();
+    }
+
+    var timestamp = 0;
+
+    database.ref('/temperature').on('value', function(snapshot) {
+      var temp = snapshot.val();
+      timestamp++;
+      updateChart(temperatureChart, timestamp, temp);
+    });
+
+    database.ref('/humidity').on('value', function(snapshot) {
+      var humidity = snapshot.val();
+      updateChart(humidityChart, timestamp, humidity);
+    });
+
+    database.ref('/feed_level').on('value', function(snapshot) {
+      var feedLevel = snapshot.val();
+      updateChart(feedLevelChart, timestamp, feedLevel);
+    });
+  </script>
+</body>
+</html>

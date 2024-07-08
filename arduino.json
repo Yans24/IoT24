@@ -1,0 +1,6 @@
+{
+    "configuration": "CpuFrequency=80,FlashSize=4M1M,LwIPVariant=v2mss536,Debug=Disabled,DebugLevel=None____,FlashErase=none,UploadSpeed=115200",
+    "board": "esp8266:esp8266:nodemcuv2",
+    "sketch": "IoT24.ino",
+    "port": "COM7"
+}
